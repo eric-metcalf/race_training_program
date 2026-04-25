@@ -1,0 +1,42 @@
+# Keep the upload to Railway lean — only source matters; the Dockerfile rebuilds.
+
+# JVM / sbt build artifacts (anywhere)
+**/target/
+**/.bsp/
+**/.bloop/
+**/.metals/
+**/.scala-build/
+**/.idea/
+**/.ivy/
+**/.sbtboot/
+**/.boot/
+backend/project/target/
+backend/project/project/
+
+# Stray sbt files anywhere outside the backend
+frontend/project/
+frontend/target/
+
+# Node
+**/node_modules/
+**/dist/
+**/.vite/
+# (frontend/src/api/generated.ts is openapi-codegen output but the frontend
+#  build needs it, so we ship it in the build context)
+
+# Local infra / dev
+.env
+.env.*
+docker-compose.yml
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Local Postgres data
+pgdata/
+
+# Logs
+*.log

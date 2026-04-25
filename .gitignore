@@ -1,0 +1,49 @@
+## Scala / sbt
+target/
+project/target/
+project/project/
+.bloop/
+.metals/
+.bsp/
+.scala-build/
+*.class
+*.log
+
+## JVM
+hs_err_pid*
+replay_pid*
+
+## IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+## Claude Code (local settings only — leave the rest of .claude/ unignored
+##  in case we add agents or commands later)
+.claude/settings.local.json
+
+## TypeScript / Vite caches
+frontend/tsconfig.tsbuildinfo
+frontend/.tanstack/
+
+## Node / Vite
+node_modules/
+frontend/dist/
+frontend/.vite/
+# frontend/src/api/generated.ts intentionally NOT ignored — it's openapi-typescript
+# output but the frontend build depends on it AND Railway honors .gitignore on upload.
+# Regenerate with `make regen-api` after backend endpoint changes.
+
+## Generated frontend bundle copied into backend
+backend/src/main/resources/public/
+
+## Env / secrets
+.env
+.env.local
+.env.*.local
+
+## Local data / uploads
+uploads/
+*.fit
+!sample/*.fit
