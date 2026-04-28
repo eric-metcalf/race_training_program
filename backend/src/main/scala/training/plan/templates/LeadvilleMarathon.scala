@@ -9,6 +9,12 @@ import java.time.DayOfWeek.*
 /** Leadville Trail Marathon — 9-week peak/taper template tuned for a moderate
   * base (20–40 mpw, mostly road). Vert-over-volume; weekend back-to-backs to
   * mimic accumulated alpine fatigue; 10-day taper.
+  *
+  * Weekly shape (build weeks 8 → 2):
+  *   Mon = rest  ·  Tue = tempo (threshold)  ·  Wed = easy
+  *   Thu = vert (hill repeats)  ·  Fri = cross-train  ·  Sat = long w/ vert
+  *   Sun = easy (or back-to-back vert on big weeks)
+  * Weeks 1 and 0 are taper + race week — sharpening shakeouts, not the build pattern.
   */
 object LeadvilleMarathon extends PlanTemplate:
 
@@ -30,15 +36,15 @@ object LeadvilleMarathon extends PlanTemplate:
 
     // -- Week 8 (build start) ------------------------------------------------
     rest(8, MONDAY),
-    TemplateDay(8, TUESDAY, WorkoutType.Vert,
-      targetDurationS = Some(min(45)), targetVertM = Some(ft(800)),
+    TemplateDay(8, TUESDAY, WorkoutType.Tempo,
+      targetDistanceM = Some(mi(5.0)), targetDurationS = Some(min(50)),
+      intensity = Some("3 mi tempo @ threshold (~half-marathon effort)"),
+      notes = Some("WU 1mi easy, 3mi sustained @ threshold, CD 1mi easy.")),
+    easy(8, WEDNESDAY, 4.0, 38),
+    TemplateDay(8, THURSDAY, WorkoutType.Vert,
+      targetDurationS = Some(min(50)), targetVertM = Some(ft(1000)),
       intensity = Some("Hills: 6x90s hard up, easy down"),
       notes = Some("Find ~6% grade. Steady effort, not all-out.")),
-    easy(8, WEDNESDAY, 4.0, 38),
-    TemplateDay(8, THURSDAY, WorkoutType.Tempo,
-      targetDistanceM = Some(mi(5)), targetDurationS = Some(min(45)),
-      intensity = Some("4mi @ marathon-pace effort"),
-      notes = Some("1mi WU, 4mi @ MP, easy CD.")),
     xtrain(8, FRIDAY, 45),
     TemplateDay(8, SATURDAY, WorkoutType.Long,
       targetDistanceM = Some(mi(10)), targetDurationS = Some(min(110)),
@@ -49,13 +55,15 @@ object LeadvilleMarathon extends PlanTemplate:
 
     // -- Week 7 --------------------------------------------------------------
     rest(7, MONDAY),
-    TemplateDay(7, TUESDAY, WorkoutType.Vert,
-      targetDurationS = Some(min(50)), targetVertM = Some(ft(1000)),
-      intensity = Some("Hills: 6x2min hard up, easy down")),
+    TemplateDay(7, TUESDAY, WorkoutType.Tempo,
+      targetDistanceM = Some(mi(6.0)), targetDurationS = Some(min(60)),
+      intensity = Some("4 mi tempo @ threshold (~half-marathon effort)"),
+      notes = Some("WU 1mi easy, 4mi sustained @ threshold, CD 1mi easy.")),
     easy(7, WEDNESDAY, 5.0, 48),
-    TemplateDay(7, THURSDAY, WorkoutType.Tempo,
-      targetDistanceM = Some(mi(6)), targetDurationS = Some(min(54)),
-      intensity = Some("4mi @ MP w/ rolling hills")),
+    TemplateDay(7, THURSDAY, WorkoutType.Vert,
+      targetDurationS = Some(min(55)), targetVertM = Some(ft(1200)),
+      intensity = Some("Hills: 6x2min hard up, easy down"),
+      notes = Some("Steeper grade than week 8 if possible.")),
     xtrain(7, FRIDAY, 45),
     TemplateDay(7, SATURDAY, WorkoutType.Long,
       targetDistanceM = Some(mi(12)), targetDurationS = Some(min(140)),
@@ -65,9 +73,10 @@ object LeadvilleMarathon extends PlanTemplate:
 
     // -- Week 6 --------------------------------------------------------------
     rest(6, MONDAY),
-    TemplateDay(6, TUESDAY, WorkoutType.Intervals,
-      targetDurationS = Some(min(50)),
-      intensity = Some("5x800m @ 5k effort, 400m jog rest")),
+    TemplateDay(6, TUESDAY, WorkoutType.Tempo,
+      targetDistanceM = Some(mi(6.0)), targetDurationS = Some(min(60)),
+      intensity = Some("4 mi tempo on rolling terrain @ threshold"),
+      notes = Some("WU 1mi, 4mi sustained @ threshold (rolling hills if you can), CD 1mi.")),
     easy(6, WEDNESDAY, 5.0, 50),
     TemplateDay(6, THURSDAY, WorkoutType.Vert,
       targetDurationS = Some(min(60)), targetVertM = Some(ft(1500)),
@@ -85,12 +94,15 @@ object LeadvilleMarathon extends PlanTemplate:
 
     // -- Week 5 (cutback) ----------------------------------------------------
     rest(5, MONDAY),
-    TemplateDay(5, TUESDAY, WorkoutType.Vert,
-      targetDurationS = Some(min(45)), targetVertM = Some(ft(900))),
+    TemplateDay(5, TUESDAY, WorkoutType.Tempo,
+      targetDistanceM = Some(mi(4.5)), targetDurationS = Some(min(45)),
+      intensity = Some("2 mi tempo @ threshold"),
+      notes = Some("Cutback week — shorter tempo, same quality. WU 1mi, 2mi tempo, CD 1mi.")),
     easy(5, WEDNESDAY, 4.0, 40),
-    TemplateDay(5, THURSDAY, WorkoutType.Tempo,
-      targetDistanceM = Some(mi(5)), targetDurationS = Some(min(45)),
-      intensity = Some("3mi @ half-marathon pace")),
+    TemplateDay(5, THURSDAY, WorkoutType.Vert,
+      targetDurationS = Some(min(45)), targetVertM = Some(ft(900)),
+      intensity = Some("Hill repeats: 6x90s, easy effort"),
+      notes = Some("Cutback week. Easier hill day.")),
     xtrain(5, FRIDAY, 45),
     TemplateDay(5, SATURDAY, WorkoutType.Long,
       targetDistanceM = Some(mi(10)), targetDurationS = Some(min(115)),
@@ -100,9 +112,10 @@ object LeadvilleMarathon extends PlanTemplate:
 
     // -- Week 4 --------------------------------------------------------------
     rest(4, MONDAY),
-    TemplateDay(4, TUESDAY, WorkoutType.Intervals,
-      targetDurationS = Some(min(55)),
-      intensity = Some("6x1km @ 10k effort, 90s rest")),
+    TemplateDay(4, TUESDAY, WorkoutType.Tempo,
+      targetDistanceM = Some(mi(7.0)), targetDurationS = Some(min(70)),
+      intensity = Some("5 mi tempo @ threshold"),
+      notes = Some("WU 1mi, 5mi sustained @ threshold, CD 1mi.")),
     easy(4, WEDNESDAY, 6.0, 60),
     TemplateDay(4, THURSDAY, WorkoutType.Vert,
       targetDurationS = Some(min(65)), targetVertM = Some(ft(1800)),
@@ -120,13 +133,15 @@ object LeadvilleMarathon extends PlanTemplate:
 
     // -- Week 3 --------------------------------------------------------------
     rest(3, MONDAY),
-    TemplateDay(3, TUESDAY, WorkoutType.Vert,
-      targetDurationS = Some(min(60)), targetVertM = Some(ft(1500)),
-      intensity = Some("Hill repeats")),
+    TemplateDay(3, TUESDAY, WorkoutType.Tempo,
+      targetDistanceM = Some(mi(7.5)), targetDurationS = Some(min(75)),
+      intensity = Some("2x3 mi tempo @ threshold, 3min jog between"),
+      notes = Some("Peak threshold volume. WU 1mi, 3mi tempo, 3min jog, 3mi tempo, CD 0.5mi.")),
     easy(3, WEDNESDAY, 5.0, 50),
-    TemplateDay(3, THURSDAY, WorkoutType.Tempo,
-      targetDistanceM = Some(mi(7)), targetDurationS = Some(min(63)),
-      intensity = Some("5mi @ MP")),
+    TemplateDay(3, THURSDAY, WorkoutType.Vert,
+      targetDurationS = Some(min(60)), targetVertM = Some(ft(1500)),
+      intensity = Some("Hill repeats: 8x2min steep grade"),
+      notes = Some("Mirror the long-run terrain you'll see Saturday.")),
     xtrain(3, FRIDAY, 60),
     TemplateDay(3, SATURDAY, WorkoutType.Long,
       targetDistanceM = Some(mi(16)), targetDurationS = Some(min(210)),
@@ -138,14 +153,15 @@ object LeadvilleMarathon extends PlanTemplate:
 
     // -- Week 2 (PEAK) -------------------------------------------------------
     rest(2, MONDAY),
-    TemplateDay(2, TUESDAY, WorkoutType.Vert,
-      targetDurationS = Some(min(60)), targetVertM = Some(ft(1500)),
-      intensity = Some("Hills: 8x2min")),
+    TemplateDay(2, TUESDAY, WorkoutType.Tempo,
+      targetDistanceM = Some(mi(5.0)), targetDurationS = Some(min(50)),
+      intensity = Some("3 mi tempo @ threshold"),
+      notes = Some("Peak quality, reduced volume — taper begins. WU 1mi, 3mi tempo, CD 1mi.")),
     easy(2, WEDNESDAY, 5.0, 50),
-    TemplateDay(2, THURSDAY, WorkoutType.Tempo,
-      targetDistanceM = Some(mi(6)), targetDurationS = Some(min(55)),
-      intensity = Some("Race-pace 4mi"),
-      notes = Some("Last hard tempo. Should feel controlled, not maxed.")),
+    TemplateDay(2, THURSDAY, WorkoutType.Vert,
+      targetDurationS = Some(min(55)), targetVertM = Some(ft(1200)),
+      intensity = Some("Hill repeats: 6x2min, controlled effort"),
+      notes = Some("Last quality vert day before taper. Don't max out.")),
     xtrain(2, FRIDAY, 45),
     TemplateDay(2, SATURDAY, WorkoutType.Long,
       targetDistanceM = Some(mi(18)), targetDurationS = Some(min(245)),
