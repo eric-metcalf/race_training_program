@@ -63,22 +63,9 @@ function PlanCalendar() {
     <div className="space-y-6">
       <div className="flex items-baseline justify-between">
         <h2 className="text-xl font-bold">Training plan — {race.data.name}</h2>
-        <div className="flex items-center gap-3 text-sm">
-          <Link to="/templates" className="text-stone-500 hover:text-stone-800">
-            Switch template
-          </Link>
-          <button
-            onClick={() => {
-              if (confirm("Regenerate plan from template? This overwrites any edits.")) {
-                regen.mutate();
-              }
-            }}
-            disabled={regen.isPending}
-            className="text-stone-500 hover:text-stone-800 underline"
-          >
-            {regen.isPending ? "Regenerating…" : "Regenerate plan"}
-          </button>
-        </div>
+        <Link to="/templates" className="text-sm text-stone-500 hover:text-stone-800">
+          Switch template
+        </Link>
       </div>
 
       <div className="space-y-3">
@@ -148,6 +135,20 @@ function PlanCalendar() {
             </section>
           );
         })}
+      </div>
+
+      <div className="flex justify-center pt-4 pb-2">
+        <button
+          onClick={() => {
+            if (confirm("Regenerate plan from template? This overwrites any edits.")) {
+              regen.mutate();
+            }
+          }}
+          disabled={regen.isPending}
+          className="text-sm text-stone-500 hover:text-stone-800 underline"
+        >
+          {regen.isPending ? "Regenerating…" : "Regenerate plan"}
+        </button>
       </div>
     </div>
   );
