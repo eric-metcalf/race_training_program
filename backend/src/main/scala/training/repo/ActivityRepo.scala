@@ -36,6 +36,13 @@ final class ActivityRepo(xa: Transactor[IO]):
       returning id, (xmax = 0) as inserted
     """.query[(Long, Boolean)].unique.map((id, ins) => (ActivityId(id), ins)).transact(xa)
 
+  def findById(id: ActivityId): IO[Option[Activity]] =
+    sql"""
+      select id, athlete_id, source, external_id, started_at, distance_m,
+             moving_seconds, elevation_gain_m, avg_hr, activity_type, name
+      from activity where id = ${id.value}
+    """.query[Activity].option.transact(xa)
+
   def list(limit: Int): IO[List[Activity]] =
     sql"""
       select id, athlete_id, source, external_id, started_at, distance_m,

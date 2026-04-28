@@ -45,6 +45,7 @@ function Upload() {
         source: "fit",
         externalId: summary.externalId,
         startedAt: summary.startedAt,
+        localDate: summary.localDate,
         distanceM: summary.distanceM,
         movingSeconds: summary.movingSeconds,
         elevationGainM: summary.elevationGainM ?? undefined,

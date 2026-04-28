@@ -115,6 +115,25 @@ final class Routes(
     activityRepo.list(limit.getOrElse(50)).map(xs => Right(xs.map(toActivityView)))
   }
 
+  private val rematchActivityLogic = rematchActivity.serverLogic { case (id, req) =>
+    val aid = ActivityId(id)
+    activityRepo.findById(aid).flatMap {
+      case None => IO.pure(Left(ApiError(s"no activity with id $id")))
+      case Some(_) =>
+        for
+          previous <- matchRepo.findByActivity(aid)
+          _        <- matchRepo.detachActivity(aid)
+          today    =  LocalDate.now()
+          info     <- matchOnActiveDay(req.localDate, today)
+        yield Right(RematchResponse(
+          activityId               = id,
+          previousPlannedWorkoutId = previous.map(_.value),
+          matchedPlannedWorkoutId  = info.map(_._1.value),
+          matchStatus              = info.map((_, s) => MatchStatus.toDb(s))
+        ))
+    }
+  }
+
   private val createActivityLogic = createActivity.serverLogic { req =>
     ActivitySource.fromDb(req.source) match
       case Left(err)     => IO.pure(Left(ApiError(err)))
@@ -140,9 +159,14 @@ final class Routes(
           )
           for
             (actId, wasNew) <- activityRepo.upsert(insert)
-            // Match against the active plan's workout on this date, if any.
             today           =  LocalDate.now()
-            activityDate    =  started.atOffset(ZoneOffset.UTC).toLocalDate
+            // Prefer the client-provided local date (browser knows the user's
+            // TZ); fall back to UTC-derived if the client didn't send it.
+            // FIT files store start_time in UTC, so the naive UTC-derived
+            // date is wrong for evening workouts in negative-offset TZs
+            // (e.g., a 6pm Mountain Time run becomes "tomorrow" in UTC).
+            activityDate    =  req.localDate
+                                 .getOrElse(started.atOffset(ZoneOffset.UTC).toLocalDate)
             matchInfo       <- matchOnActiveDay(activityDate, today)
           yield Right(CreateActivityResponse(
             activityId              = actId.value,
@@ -303,6 +327,7 @@ final class Routes(
     updateWorkoutLogic,
     listActivitiesLogic,
     createActivityLogic,
+    rematchActivityLogic,
     listTemplatesLogic,
     getTemplateLogic,
     createPlanLogic,

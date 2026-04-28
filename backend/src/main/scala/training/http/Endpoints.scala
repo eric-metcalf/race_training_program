@@ -105,7 +105,11 @@ object Endpoints:
   final case class CreateActivityRequest(
       source: String,                 // "fit" or "manual"
       externalId: String,             // sha1 of source bytes when source=fit
-      startedAt: String,              // ISO-8601 instant string
+      startedAt: String,              // ISO-8601 instant string (always UTC)
+      localDate: Option[LocalDate],   // the date the user perceives the run
+                                      // happened on, in their TZ. Sent by the
+                                      // browser via Intl. Backend falls back
+                                      // to UTC-derived date if omitted.
       distanceM: Int,
       movingSeconds: Int,
       elevationGainM: Option[Int],
@@ -117,6 +121,18 @@ object Endpoints:
   final case class CreateActivityResponse(
       activityId: Long,
       duplicate: Boolean,             // true if external_id already existed
+      matchedPlannedWorkoutId: Option[Long],
+      matchStatus: Option[String]
+  ) derives Encoder.AsObject, Decoder
+
+  /** Re-attach an activity to a different day's planned workout. Used to fix
+    * up activities that landed on the wrong day (e.g., evening runs that got
+    * matched to the next UTC day before the localDate fix). */
+  final case class RematchRequest(localDate: LocalDate) derives Encoder.AsObject, Decoder
+
+  final case class RematchResponse(
+      activityId: Long,
+      previousPlannedWorkoutId: Option[Long],
       matchedPlannedWorkoutId: Option[Long],
       matchStatus: Option[String]
   ) derives Encoder.AsObject, Decoder
@@ -223,6 +239,16 @@ object Endpoints:
       .out(jsonBody[CreateActivityResponse])
       .description("Upsert an activity (e.g. parsed from a .FIT file) and re-match its date's planned workout")
 
+  val rematchActivity =
+    base.post
+      .in("activities" / path[Long]("id") / "rematch")
+      .in(jsonBody[RematchRequest])
+      .out(jsonBody[RematchResponse])
+      .errorOutVariant(
+        oneOfVariant(statusCode(sttp.model.StatusCode.NotFound).and(jsonBody[ApiError]))
+      )
+      .description("Move an existing activity's match to a different day's planned workout")
+
   val listPlans =
     base.get
       .in("plans")
@@ -255,6 +281,7 @@ object Endpoints:
     updateWorkout,
     listActivities,
     createActivity,
+    rematchActivity,
     listTemplates,
     getTemplate,
     createPlan,

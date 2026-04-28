@@ -103,6 +103,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/activities/{id}/rematch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Move an existing activity's match to a different day's planned workout */
+        post: operations["postApiActivitiesIdRematch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/templates": {
         parameters: {
             query?: never;
@@ -220,6 +237,8 @@ export interface components {
             source: string;
             externalId: string;
             startedAt: string;
+            /** Format: date */
+            localDate?: string;
             /** Format: int32 */
             distanceM: number;
             /** Format: int32 */
@@ -326,6 +345,21 @@ export interface components {
             planId: number;
             /** Format: int32 */
             workoutsInserted: number;
+        };
+        /** RematchRequest */
+        RematchRequest: {
+            /** Format: date */
+            localDate: string;
+        };
+        /** RematchResponse */
+        RematchResponse: {
+            /** Format: int64 */
+            activityId: number;
+            /** Format: int64 */
+            previousPlannedWorkoutId?: number;
+            /** Format: int64 */
+            matchedPlannedWorkoutId?: number;
+            matchStatus?: string;
         };
         /** TemplateDetailView */
         TemplateDetailView: {
@@ -652,6 +686,56 @@ export interface operations {
                 };
                 content: {
                     "text/plain": string;
+                };
+            };
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
+                };
+            };
+        };
+    };
+    postApiActivitiesIdRematch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RematchRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RematchResponse"];
+                };
+            };
+            /** @description Invalid value for: path parameter id, Invalid value for: body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiError"];
                 };
             };
             500: {

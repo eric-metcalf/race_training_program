@@ -3,7 +3,10 @@ import { Decoder, Stream } from "@garmin/fitsdk";
 /** Summary of one .FIT file's primary session, normalized for our backend. */
 export interface FitSummary {
   externalId: string;       // sha1 of the source bytes
-  startedAt: string;        // ISO instant
+  startedAt: string;        // ISO instant (always UTC)
+  localDate: string;        // yyyy-mm-dd in the *browser's* timezone — sent to
+                            // the server so a 6pm Mountain Time run isn't
+                            // accounted to "tomorrow" via UTC truncation.
   distanceM: number;
   movingSeconds: number;
   elevationGainM: number | null;
@@ -68,6 +71,7 @@ export async function parseFit(file: File): Promise<FitSummary> {
   return {
     externalId,
     startedAt: started.toISOString(),
+    localDate: toLocalIsoDate(started),
     distanceM,
     movingSeconds,
     elevationGainM,
@@ -77,6 +81,14 @@ export async function parseFit(file: File): Promise<FitSummary> {
     rawSubSport: s.subSport ?? null,
     fileName: file.name,
   };
+}
+
+/** Format a Date as `yyyy-mm-dd` in the browser's local timezone. */
+function toLocalIsoDate(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function mapActivityType(sport: string | null, subSport: string | null): string {

@@ -92,13 +92,38 @@ function PlanCalendar() {
             ? expandedDate
             : null;
 
+          // Per-week totals across all workouts in this week (rest/xtrain rows
+          // don't contribute since they have null targets).
+          const totalMiles = week.workouts.reduce(
+            (s, w) => s + (w.targetDistanceM ?? 0),
+            0,
+          ) / 1609.34;
+          const totalVertFt = week.workouts.reduce(
+            (s, w) => s + (w.targetVertM ?? 0),
+            0,
+          ) * 3.281;
+          const runDays = week.workouts.filter(
+            (w) => w.type !== "rest" && w.type !== "xtrain",
+          ).length;
+
           return (
             <section
               key={week.id}
               className="bg-white border border-stone-200 rounded-lg overflow-hidden"
             >
-              <header className="px-4 py-2 border-b border-stone-100 bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
-                Week of {format(weekOf, "MMM d")}
+              <header className="px-4 py-2 border-b border-stone-100 bg-stone-50 flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wide text-stone-500">
+                  Week of {format(weekOf, "MMM d")}
+                </span>
+                <span className="text-xs text-stone-500 space-x-3 font-medium">
+                  {totalMiles > 0 && <span>{totalMiles.toFixed(1)} mi</span>}
+                  {totalVertFt > 0 && (
+                    <span>↑ {Math.round(totalVertFt).toLocaleString()} ft</span>
+                  )}
+                  <span className="text-stone-400">
+                    {runDays} run{runDays === 1 ? "" : "s"}
+                  </span>
+                </span>
               </header>
               <div className="grid grid-cols-7 divide-x divide-stone-100">
                 {weekDates.map((d) => {

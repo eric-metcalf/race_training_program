@@ -14,6 +14,8 @@ export type CreatePlanRequest = components["schemas"]["CreatePlanRequest"];
 export type CreatePlanResponse = components["schemas"]["CreatePlanResponse"];
 export type CreateActivityRequest = components["schemas"]["CreateActivityRequest"];
 export type CreateActivityResponse = components["schemas"]["CreateActivityResponse"];
+export type RematchRequest = components["schemas"]["RematchRequest"];
+export type RematchResponse = components["schemas"]["RematchResponse"];
 export type PlanSummaryView = components["schemas"]["PlanSummaryView"];
 
 async function jsonGet<T>(path: string): Promise<T> {
@@ -71,6 +73,9 @@ export const api = {
 
   createActivity: (req: CreateActivityRequest) =>
     jsonPostBody<CreateActivityRequest, CreateActivityResponse>("/api/activities", req),
+
+  rematchActivity: (id: number, req: RematchRequest) =>
+    jsonPostBody<RematchRequest, RematchResponse>(`/api/activities/${id}/rematch`, req),
 
   plans: () => jsonGet<PlanSummaryView[]>("/api/plans"),
 

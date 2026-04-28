@@ -24,3 +24,20 @@ final class MatchRepo(xa: Transactor[IO]):
         status      = excluded.status,
         computed_at = now()
     """.update.run.transact(xa)
+
+  /** Detach this activity from any planned workout it was previously matched
+    * to (clears activity_id, sets status back to 'pending'). Returns count
+    * of rows touched. */
+  def detachActivity(activityId: ActivityId): IO[Int] =
+    sql"""
+      update workout_match
+      set activity_id = null, status = 'pending', computed_at = now()
+      where activity_id = ${activityId.value}
+    """.update.run.transact(xa)
+
+  /** What planned_workout (if any) is this activity currently matched to? */
+  def findByActivity(activityId: ActivityId): IO[Option[PlannedWorkoutId]] =
+    sql"""
+      select planned_workout_id from workout_match
+      where activity_id = ${activityId.value}
+    """.query[Long].option.map(_.map(PlannedWorkoutId.apply)).transact(xa)

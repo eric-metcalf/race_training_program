@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO, isToday, isYesterday } from "date-fns";
 import { clsx } from "clsx";
 import { api, type ActivityView } from "../api/client";
@@ -69,8 +69,19 @@ function Activities() {
 }
 
 function ActivityRow({ a }: { a: ActivityView }) {
+  const qc = useQueryClient();
   const dt = parseISO(a.startedAt);
   const dateKey = format(dt, "yyyy-MM-dd");
+
+  const rematch = useMutation({
+    mutationFn: () => api.rematchActivity(a.id, { localDate: dateKey }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["plan"] });
+      qc.invalidateQueries({ queryKey: ["workout"] });
+      qc.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+
   return (
     <li className="px-4 py-3 hover:bg-stone-50 transition-colors">
       <div className="flex items-baseline justify-between gap-3">
@@ -81,13 +92,28 @@ function ActivityRow({ a }: { a: ActivityView }) {
             <ActivityTypeChip type={a.activityType} />
           </div>
           <p className="text-stone-900 truncate">{a.name ?? "(unnamed)"}</p>
-          <Link
-            to="/plan/$date"
-            params={{ date: dateKey }}
-            className="text-xs text-stone-400 hover:text-stone-700 hover:underline"
-          >
-            See planned workout for {format(dt, "MMM d")} →
-          </Link>
+          <div className="flex items-center gap-3 mt-0.5">
+            <Link
+              to="/plan/$date"
+              params={{ date: dateKey }}
+              className="text-xs text-stone-400 hover:text-stone-700 hover:underline"
+            >
+              See planned workout for {format(dt, "MMM d")} →
+            </Link>
+            <button
+              onClick={() => rematch.mutate()}
+              disabled={rematch.isPending}
+              title={`Re-attach this activity to ${format(dt, "MMM d")}'s planned workout (fixes timezone-mismatched matches)`}
+              className="text-xs text-stone-400 hover:text-stone-700 hover:underline disabled:opacity-50"
+            >
+              {rematch.isPending ? "Re-matching…" : "Re-match to this date"}
+            </button>
+            {rematch.data && (
+              <span className="text-xs text-emerald-700">
+                ✓ {rematch.data.matchStatus ?? "no plan on date"}
+              </span>
+            )}
+          </div>
         </div>
         <dl className="grid grid-cols-3 gap-x-4 text-sm text-right shrink-0">
           <Stat compact label="Dist" value={mi(a.distanceM)} />
