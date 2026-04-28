@@ -69,9 +69,15 @@ final class Routes(
 
   private val regeneratePlanLogic = regeneratePlan.serverLogic { _ =>
     withActivePlan { (plan, race, tmpl) =>
-      Generator
-        .regenerate(planRepo, plan.id, race.raceDate, tmpl.template)
-        .map(n => Right(RegenerateResponse(plan.id.value, n)))
+      val today = LocalDate.now()
+      // Wide enough window to cover the longest template (22 wk) plus race week.
+      val from  = race.raceDate.minusWeeks((tmpl.weeks + 1).toLong)
+      val to    = race.raceDate.plusDays(7)
+      for
+        n    <- Generator.regenerate(planRepo, plan.id, race.raceDate, tmpl.template)
+        rows <- planRepo.listInRange(plan.id, from, to)
+        _    <- rows.traverse(p => Matcher.matchOne(activityRepo, matchRepo, athleteId, p, today))
+      yield Right(RegenerateResponse(plan.id.value, n))
     }
   }
 
